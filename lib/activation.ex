@@ -4,7 +4,13 @@ defmodule Activation do
       Module.register_attribute(__CALLER__.module, __MODULE__, accumulate: true, persist: true)
     end
 
-    Module.put_attribute(__CALLER__.module, __MODULE__, {module, function_name, args})
+    mfa = {
+      Macro.expand(module, __CALLER__),
+      function_name,
+      Enum.map(args, &Macro.expand(&1, __CALLER__))
+    }
+
+    Module.put_attribute(__CALLER__.module, __MODULE__, mfa)
 
     quote do
       case :persistent_term.get(unquote(__MODULE__), %{}) do
