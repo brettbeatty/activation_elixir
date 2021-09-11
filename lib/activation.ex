@@ -1,4 +1,4 @@
-defmodule Activate do
+defmodule Activation do
   defmacro activate(module, function_name, args) do
     unless Module.has_attribute?(__CALLER__.module, __MODULE__) do
       Module.register_attribute(__CALLER__.module, __MODULE__, accumulate: true, persist: true)
@@ -12,12 +12,12 @@ defmodule Activate do
           value
 
         %{} ->
-          raise "could not get value; did you call Activate.start/0?"
+          raise "could not get value; did you call Activation.start/0?"
       end
     end
   end
 
   def start do
-    apply(Activate.Starter, :start, [])
+    apply(Activation.Consolidated, :start, [])
   end
 end

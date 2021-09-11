@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Compile.Activate do
+defmodule Mix.Tasks.Compile.Activation do
   use Mix.Task.Compiler
 
   @impl Mix.Task.Compiler
@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Compile.Activate do
           not :lists.prefix(erlang_prefix, dir),
           file <- ls(dir),
           :lists.prefix('Elixir.', file) and :filename.extension(file) == '.beam',
-          {Activate, activations} <- get_attrs(dir, file),
+          {Activation, activations} <- get_attrs(dir, file),
           {module, function_name, args} <- activations,
           uniq: true do
         quote do
@@ -22,13 +22,13 @@ defmodule Mix.Tasks.Compile.Activate do
     ast =
       quote do
         def start do
-          :persistent_term.put(Activate, %{unquote_splicing(activations)})
+          :persistent_term.put(Activation, %{unquote_splicing(activations)})
         end
       end
 
-    :code.purge(Activate.Starter)
-    :code.delete(Activate.Starter)
-    Module.create(Activate.Starter, ast, __ENV__)
+    :code.purge(Activation.Consolidated)
+    :code.delete(Activation.Consolidated)
+    Module.create(Activation.Consolidated, ast, __ENV__)
 
     :ok
   end
