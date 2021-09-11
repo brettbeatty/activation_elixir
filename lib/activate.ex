@@ -1,18 +1,23 @@
 defmodule Activate do
-  @moduledoc """
-  Documentation for `Activate`.
-  """
+  defmacro activate(module, function_name, args) do
+    unless Module.has_attribute?(__CALLER__.module, __MODULE__) do
+      Module.register_attribute(__CALLER__.module, __MODULE__, accumulate: true, persist: true)
+    end
 
-  @doc """
-  Hello world.
+    Module.put_attribute(__CALLER__.module, __MODULE__, {module, function_name, args})
 
-  ## Examples
+    quote do
+      case :persistent_term.get(unquote(__MODULE__), %{}) do
+        %{{unquote(module), unquote(function_name), unquote(args)} => value} ->
+          value
 
-      iex> Activate.hello()
-      :world
+        %{} ->
+          raise "could not get value; did you call Activate.start/0?"
+      end
+    end
+  end
 
-  """
-  def hello do
-    :world
+  def start do
+    apply(Activate.Starter, :start, [])
   end
 end
